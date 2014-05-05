@@ -18,7 +18,7 @@ dataDirectory <- '/home/wacax/Documents/Wacax/Kaggle Data Analysis/Allstate/Data
 
 #Load functions
 
-###########################
+#############################
 #Load Data
 #Input Data
 train <- read.csv(paste0(dataDirectory, 'train.csv'), header = TRUE, stringsAsFactors = FALSE, na.strings=c("", "NA", "NULL"))
