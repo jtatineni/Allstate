@@ -25,3 +25,6 @@ train <- read.csv(paste0(dataDirectory, 'train.csv'), header = TRUE, stringsAsFa
 test <- read.csv(paste0(dataDirectory, 'test_v2.csv'), header = TRUE, stringsAsFactors = FALSE, na.strings=c("", "NA", "NULL"))
 
 submissionTemplate <- read.csv(paste0(dataDirectory, 'sampleSubmission.csv'), header = TRUE, stringsAsFactors = FALSE, na.strings=c("", "NA", "NULL"))
+
+###############################
+#EDA
