@@ -96,8 +96,19 @@ print(G.spread, height = 6, width = 8)
 #Correlations between product options and features
 purchasesIndices <- train$record_type == 1
 pre_purchaseIndices <- 1:nrow(train) %in% (which(train$record_type == 1) - 1)
-pur.prePur.Indices <- purchasesIndices | pre_purchaseIndices
 purchaseVector <- train$record_type[purchasesIndices | pre_purchaseIndices]
+
+#sample data
+nonPurchaseSamples <- sapply(unique(train$customer_ID[1:2000]), anonFun <- function(ID, data){
+  randZeroIndex <- sample(which(train$customer_ID == ID & train$record_type == 0), 1)
+  return(data[randZeroIndex, ])
+}
+, train)
+
+#not working yet
+#nonPurchaseSamples <- as.data.frame(t(nonPurchaseSamples))
+#names(nonPurchaseSamples) <- names(train)
+#trainRandNonPurchases <- rbind(train[purchasesIndices, ], nonPurchaseSamples)
 
 #cost vs. product "A"
 ggplot(train, aes(x = A, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
