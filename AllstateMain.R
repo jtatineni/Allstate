@@ -17,6 +17,7 @@ setwd(workingDirectory)
 dataDirectory <- '/home/wacax/Documents/Wacax/Kaggle Data Analysis/Allstate/Data/'
 
 #Load functions
+source(paste0(workingDirectory, 'gridCrossValidationGBM.R'))
 
 #############################
 #Load Data
@@ -36,7 +37,7 @@ submissionTemplate <- read.csv(paste0(dataDirectory, 'sampleSubmission.csv'), he
 #  column <- as.factor(column)  
 #})
 
-train$record_type <- as.factor(train$record_type)
+train$customer_ID <- as.character(train$customer_ID)
 train$day <- as.factor(train$day)
 train$state <- as.factor(train$state)
 train$location <- as.factor(train$location)
@@ -53,7 +54,7 @@ train$F <- as.factor(train$F)
 train$G <- as.factor(train$G)
 train$cost <- as.numeric(train$cost)
 
-test$record_type <- as.factor(test$record_type)
+test$customer_ID <- as.character(test$customer_ID)
 test$day <- as.factor(test$day)
 test$state <- as.factor(test$state)
 test$location <- as.factor(test$location)
@@ -70,7 +71,7 @@ test$F <- as.factor(test$F)
 test$G <- as.factor(test$G)
 test$cost <- as.numeric(test$cost)
 
-####################################
+#####################################
 #EDA
 #this needs to be automated as much as possible
 set.seed(101)
@@ -93,41 +94,131 @@ G.spread <- ggplot(train[sampleIndices, ], aes(x = G)) + geom_density()
 print(G.spread, height = 6, width = 8)
 
 ###############################################
-#Correlations between product options and features
+#sample data
+train$record_type <- as.character(train$record_type) #using characters reduces the search by 50% time
+test$record_type <- as.character(test$record_type) #same goes here
+
+nonPurchaseRandSamples <- sapply(unique(train$customer_ID), anonFun <- function(ID){
+  randZeroIndex <- sample(which(train$customer_ID == ID & train$record_type == 0), 1)
+  return(randZeroIndex)
+}
+)
+#save this!, the process takes about 2.5 hours
+save(nonPurchaseRandSamples, file = 'randSamples.RData')
+
 purchasesIndices <- train$record_type == 1
 pre_purchaseIndices <- 1:nrow(train) %in% (which(train$record_type == 1) - 1)
+pur.prePur.Indices <- purchasesIndices | pre_purchaseIndices
 purchaseVector <- train$record_type[purchasesIndices | pre_purchaseIndices]
-
-#sample data
-nonPurchaseSamples <- sapply(unique(train$customer_ID[1:2000]), anonFun <- function(ID, data){
-  randZeroIndex <- sample(which(train$customer_ID == ID & train$record_type == 0), 1)
-  return(data[randZeroIndex, ])
-}
-, train)
-
-#not working yet
-#nonPurchaseSamples <- as.data.frame(t(nonPurchaseSamples))
-#names(nonPurchaseSamples) <- names(train)
-#trainRandNonPurchases <- rbind(train[purchasesIndices, ], nonPurchaseSamples)
+randPlusPurchase <- purchasesIndices | nonPurchaseRandSamples
 
 #cost vs. product "A"
 ggplot(train, aes(x = A, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
 ggplot(train[pur.prePur.Indices, ], aes(x = A, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+ggplot(train[randPlusPurchase, ], aes(x = A, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
 #cost vs. product "B"
 ggplot(train, aes(x = B, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
 ggplot(train[pur.prePur.Indices, ], aes(x = B, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+ggplot(train[randPlusPurchase, ], aes(x = B, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
 #cost vs. product "C"
 ggplot(train, aes(x = C, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
 ggplot(train[pur.prePur.Indices, ], aes(x = C, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+ggplot(train[randPlusPurchase, ], aes(x = C, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
 #cost vs. product "D"
 ggplot(train, aes(x = D, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
 ggplot(train[pur.prePur.Indices, ], aes(x = D, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+ggplot(train[randPlusPurchase, ], aes(x = D, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
 #cost vs. product "E"
 ggplot(train, aes(x = E, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
 ggplot(train[pur.prePur.Indices, ], aes(x = E, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
 #cost vs. product "F"
 ggplot(train, aes(x = F, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
 ggplot(train[pur.prePur.Indices, ], aes(x = F, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+ggplot(train[randPlusPurchase, ], aes(x = F, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
 #cost vs. product "G"
 ggplot(train, aes(x = G, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
 ggplot(train[pur.prePur.Indices, ], aes(x = G, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+ggplot(train[randPlusPurchase, ], aes(x = G, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+
+#back to factor for IDA/modeling
+train$record_type <- as.factor(train$record_type)
+test$record_type <- as.factor(test$record_type)
+
+####################################
+#IDA (initial data analysis)
+#Correlations between product options and features
+#scatterplots of features vs product A
+pairs(A ~ shopping_pt + record_type + day + time + state + location
+      + group_size + homeowner + car_age + car_value + risk_factor
+      + age_oldest + age_youngest + married_couple + C_previous + duration_previous 
+      + B + C + D + E + F + G + cost, train) 
+#scatterplots of features vs product B
+pairs(B ~ shopping_pt + record_type + day + time + state + location
+      + group_size + homeowner + car_age + car_value + risk_factor
+      + age_oldest + age_youngest + married_couple + C_previous + duration_previous 
+      + A + C + D + E + F + G + cost, train) 
+#scatterplots of features vs product C
+pairs(C ~ shopping_pt + record_type + day + time + state + location
+      + group_size + homeowner + car_age + car_value + risk_factor
+      + age_oldest + age_youngest + married_couple + C_previous + duration_previous 
+      + A + B + D + E + F + G + cost, train) 
+#scatterplots of features vs product D
+pairs(D ~ shopping_pt + record_type + day + time + state + location
+      + group_size + homeowner + car_age + car_value + risk_factor
+      + age_oldest + age_youngest + married_couple + C_previous + duration_previous 
+      + A + B + C + E + F + G + cost, train) 
+#scatterplots of features vs product E
+pairs(E ~ shopping_pt + record_type + day + time + state + location
+      + group_size + homeowner + car_age + car_value + risk_factor
+      + age_oldest + age_youngest + married_couple + C_previous + duration_previous 
+      + A + B + C + D + F + G + cost, train) 
+#scatterplots of features vs product F
+pairs(F ~ shopping_pt + record_type + day + time + state + location
+      + group_size + homeowner + car_age + car_value + risk_factor
+      + age_oldest + age_youngest + married_couple + C_previous + duration_previous 
+      + A + B + C + D + E + G + cost, train) 
+#scatterplots of features vs product G
+pairs(G ~ shopping_pt + record_type + day + time + state + location
+      + group_size + homeowner + car_age + car_value + risk_factor
+      + age_oldest + age_youngest + married_couple + C_previous + duration_previous 
+      + A + B + C + D + E + G + cost, train) 
+
+#end of awfully long EDA
+########################################
+#Extra feature creation
+
+
+#########################################
+#Modelling
+
+#Tree Boosting
+#subsetting
+set.seed(1001)
+trainIndices <- sample(1:nrow(train), 5000) # Number of samples considered for prototyping / best parameter selection, it has to be greater than 500 the sampling size, otherwise it will throw an error saying that more data is required 
+#trainIndices <- sample(1:nrow(train), nrow(train)) # Use this line to use the complete dataset and shuffle the data
+
+#Modeling - Training
+amountOfTrees <- 60000
+NumberofCVFolds <- 5
+cores <- NumberofCVFolds
+
+if (NumberofCVFolds > 3){
+  cores <- detectCores() - 1
+}
+
+treeDepth <- 7 #interaction.depth X-validation
+
+
+##grid cross validation
+gridCrossValidationGBM <- gridCrossValidationGBM(Weekly_Sales ~ ., cbind(extractedFeatures, train[trainIndices, -3]), sampleIndices, amountOfTrees,
+                                                 NumberofCVFolds, cores, seq(1, 6), c(0.001, 0.003))
+##
+optimalTreeDepth <- gridCrossValidationGBM[1]
+optimalShrinkage <- gridCrossValidationGBM[2]
+
+#Use best hiperparameters on full data
+gbmWalmart <- gbm(Weekly_Sales ~ ., data = cbind(extractedFeatures, train[trainIndices, -3]), 
+                  n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
+                  shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'gaussian') #input interaction.depth
+
+summary(gbmWalmart)
