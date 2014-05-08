@@ -76,6 +76,7 @@ test$cost <- as.numeric(test$cost)
 set.seed(101)
 sampleIndices <- sort(sample(1:nrow(train), 2000)) # these indices are good for the train features and features plots
 
+#Product options density plots
 A.spread <- ggplot(train[sampleIndices, ], aes(x = A)) + geom_density()
 print(A.spread, height = 6, width = 8)
 B.spread <- ggplot(train[sampleIndices, ], aes(x = B)) + geom_density()
@@ -90,3 +91,32 @@ Ff.spread <- ggplot(train[sampleIndices, ], aes(x = F)) + geom_density()
 print(Ff.spread, height = 6, width = 8)
 G.spread <- ggplot(train[sampleIndices, ], aes(x = G)) + geom_density()
 print(G.spread, height = 6, width = 8)
+
+###############################################
+#Correlations between product options and features
+purchasesIndices <- train$record_type == 1
+pre_purchaseIndices <- 1:nrow(train) %in% (which(train$record_type == 1) - 1)
+pur.prePur.Indices <- purchasesIndices | pre_purchaseIndices
+purchaseVector <- train$record_type[purchasesIndices | pre_purchaseIndices]
+
+#cost vs. product "A"
+ggplot(train, aes(x = A, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+ggplot(train[pur.prePur.Indices, ], aes(x = A, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+#cost vs. product "B"
+ggplot(train, aes(x = B, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+ggplot(train[pur.prePur.Indices, ], aes(x = B, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+#cost vs. product "C"
+ggplot(train, aes(x = C, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+ggplot(train[pur.prePur.Indices, ], aes(x = C, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+#cost vs. product "D"
+ggplot(train, aes(x = D, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+ggplot(train[pur.prePur.Indices, ], aes(x = D, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+#cost vs. product "E"
+ggplot(train, aes(x = E, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+ggplot(train[pur.prePur.Indices, ], aes(x = E, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+#cost vs. product "F"
+ggplot(train, aes(x = F, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+ggplot(train[pur.prePur.Indices, ], aes(x = F, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+#cost vs. product "G"
+ggplot(train, aes(x = G, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
+ggplot(train[pur.prePur.Indices, ], aes(x = G, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
