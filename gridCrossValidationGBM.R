@@ -1,6 +1,6 @@
 gridCrossValidationGBM <- function(formulaModel, dataModel, subset, numberOfTrees,
                                     xValFolds, coresAmount, treeDepthVector, shrinkageVector,
-                                   plot = TRUE, distributionSelected = 'gaussian'){
+                                   plot = TRUE, distributionSelected = 'multinomial'){
   
   #Cross validates features selected by the user
   grid <- expand.grid(treeDepthVector, shrinkageVector, stringsAsFactors = TRUE) #this creates all possible combinations of the elements in treeDepthVector and shrinkageVector

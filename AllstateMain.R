@@ -11,7 +11,7 @@ require("gbm")
 require("Metrics")
 
 #Set Working Directory
-workingDirectory <- '/home/wacax/Documents/Wacax/Kaggle Data Analysis/Allstate/Allstate'
+workingDirectory <- '/home/wacax/Documents/Wacax/Kaggle Data Analysis/Allstate/Allstate/'
 setwd(workingDirectory)
 
 dataDirectory <- '/home/wacax/Documents/Wacax/Kaggle Data Analysis/Allstate/Data/'
@@ -39,6 +39,7 @@ submissionTemplate <- read.csv(paste0(dataDirectory, 'sampleSubmission.csv'), he
 
 train$customer_ID <- as.character(train$customer_ID)
 train$day <- as.factor(train$day)
+train$time <- strftime(train$time, format = "%I:%M")
 train$state <- as.factor(train$state)
 train$location <- as.factor(train$location)
 train$homeowner <- as.factor(train$homeowner)
@@ -56,6 +57,7 @@ train$cost <- as.numeric(train$cost)
 
 test$customer_ID <- as.character(test$customer_ID)
 test$day <- as.factor(test$day)
+test$time <- strftime(test$time, format = "%H:%M")
 test$state <- as.factor(test$state)
 test$location <- as.factor(test$location)
 test$homeowner <- as.factor(test$homeowner)
@@ -110,7 +112,13 @@ purchasesIndices <- train$record_type == 1
 pre_purchaseIndices <- 1:nrow(train) %in% (which(train$record_type == 1) - 1)
 pur.prePur.Indices <- purchasesIndices | pre_purchaseIndices
 purchaseVector <- train$record_type[purchasesIndices | pre_purchaseIndices]
-randPlusPurchase <- purchasesIndices | nonPurchaseRandSamples
+randPlusPurchase <- purchasesIndices | 1:nrow(train) %in% nonPurchaseRandSamples
+
+#create a "y" matrix and merge it with the train matrix
+yMatrix <- train[purchasesIndices, c('customer_ID', 'A', 'B', 'C', 'D', 'E', 'F', 'G')]
+names(yMatrix) <- c('customer_ID', 'Ay', 'By', 'Cy', 'Dy', 'Ey', 'Fy', 'Gy')
+train <- merge(train, yMatrix, all = TRUE)
+rm(yMatrix)
 
 #cost vs. product "A"
 ggplot(train, aes(x = A, y = cost, fill = record_type)) +  geom_point() + facet_grid(record_type ~ .)
@@ -148,7 +156,7 @@ test$record_type <- as.factor(test$record_type)
 #IDA (initial data analysis)
 #Correlations between product options and features
 #scatterplots of features vs product A
-pairs(A ~ shopping_pt + record_type + day + time + state + location
+pairs(Ay ~ shopping_pt + record_type + day + time + state + location
       + group_size + homeowner + car_age + car_value + risk_factor
       + age_oldest + age_youngest + married_couple + C_previous + duration_previous 
       + B + C + D + E + F + G + cost, train) 
@@ -186,6 +194,7 @@ pairs(G ~ shopping_pt + record_type + day + time + state + location
 #end of awfully long EDA
 ########################################
 #Extra feature creation
+#correlations between packages and features
 
 
 #########################################
@@ -194,8 +203,10 @@ pairs(G ~ shopping_pt + record_type + day + time + state + location
 #Tree Boosting
 #subsetting
 set.seed(1001)
-trainIndices <- sample(1:nrow(train), 5000) # Number of samples considered for prototyping / best parameter selection, it has to be greater than 500 the sampling size, otherwise it will throw an error saying that more data is required 
-#trainIndices <- sample(1:nrow(train), nrow(train)) # Use this line to use the complete dataset and shuffle the data
+trainIndices <- sample(1:length(nonPurchaseRandSamples), 10000) # Number of samples considered for prototyping / best parameter selection, it has to be greater than 500 the sampling size, otherwise it will throw an error saying that more data is required 
+#trainIndices <- sample(1:length(nonPurchaseRandSamples), length(nonPurchaseRandSamples)) # Use this line to use the complete dataset and shuffle the data
+set.seed(1003)
+sampleIndices <- sort(sample(1:nrow(train[trainIndices, ]), floor(nrow(train[trainIndices, ]) * 0.6))) # these indices are useful for validation
 
 #Modeling - Training
 amountOfTrees <- 60000
@@ -216,9 +227,51 @@ gridCrossValidationGBM <- gridCrossValidationGBM(Weekly_Sales ~ ., cbind(extract
 optimalTreeDepth <- gridCrossValidationGBM[1]
 optimalShrinkage <- gridCrossValidationGBM[2]
 
-#Use best hiperparameters on full data
-gbmWalmart <- gbm(Weekly_Sales ~ ., data = cbind(extractedFeatures, train[trainIndices, -3]), 
+#Use best hiperparameters on full data for package "A". Random non-purchase data 
+gbmAllstateA <- gbm(Ay ~ ., data = train[1:nrow(train) %in% nonPurchaseRandSamples, c(-1, -3, -5, -7, seq(-26, -32))], 
                   n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
-                  shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'gaussian') #input interaction.depth
+                  shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
-summary(gbmWalmart)
+summary(gbmAllstateA)
+
+#Use best hiperparameters on full data for package "B". Random non-purchase data 
+gbmAllstateB <- gbm(By ~ ., data = train[1:nrow(train) %in% nonPurchaseRandSamples, c(-1, -3, -5, -7, seq(-26, -32))], 
+                    n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
+                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
+
+summary(gbmAllstateB)
+
+#Use best hiperparameters on full data for package "C". Random non-purchase data 
+gbmAllstateC <- gbm(Cy ~ ., data = train[1:nrow(train) %in% nonPurchaseRandSamples, c(-1, -3, -5, -7, seq(-26, -32))], 
+                    n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
+                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
+
+summary(gbmAllstateC)
+
+#Use best hiperparameters on full data for package "D". Random non-purchase data 
+gbmAllstateD <- gbm(Dy ~ ., data = train[1:nrow(train) %in% nonPurchaseRandSamples, c(-1, -3, -5, -7, seq(-26, -32))], 
+                    n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
+                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
+
+summary(gbmAllstateD)
+
+#Use best hiperparameters on full data for package "E". Random non-purchase data 
+gbmAllstateE <- gbm(Ey ~ ., data = train[1:nrow(train) %in% nonPurchaseRandSamples, c(-1, -3, -5, -7, seq(-26, -32))], 
+                    n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
+                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
+
+summary(gbmAllstateE)
+
+#Use best hiperparameters on full data for package "F". Random non-purchase data 
+gbmAllstateF <- gbm(Fy ~ ., data = train[1:nrow(train) %in% nonPurchaseRandSamples, c(-1, -3, -5, -7, seq(-26, -32))], 
+                    n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
+                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
+
+summary(gbmAllstateF)
+
+#Use best hiperparameters on full data for package "G". Random non-purchase data 
+gbmAllstateG <- gbm(Gy ~ ., data = train[1:nrow(train) %in% nonPurchaseRandSamples, c(-1, -3, -5, -7, seq(-26, -32))], 
+                    n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
+                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
+
+summary(gbmAllstateG)
