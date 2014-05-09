@@ -199,12 +199,8 @@ pairs(G ~ shopping_pt + record_type + day + time + state + location
 
 #########################################
 #Modelling
-
 #Tree Boosting
-#subsetting
-set.seed(1001)
-trainIndices <- sample(1:length(nonPurchaseRandSamples), 10000) # Number of samples considered for prototyping / best parameter selection, it has to be greater than 500 the sampling size, otherwise it will throw an error saying that more data is required 
-#trainIndices <- sample(1:length(nonPurchaseRandSamples), length(nonPurchaseRandSamples)) # Use this line to use the complete dataset and shuffle the data
+
 set.seed(1003)
 sampleIndices <- sort(sample(1:nrow(train[trainIndices, ]), floor(nrow(train[trainIndices, ]) * 0.6))) # these indices are useful for validation
 
@@ -228,49 +224,53 @@ optimalTreeDepth <- gridCrossValidationGBM[1]
 optimalShrinkage <- gridCrossValidationGBM[2]
 
 #Use best hiperparameters on full data for package "A". Random non-purchase data 
-gbmAllstateA <- gbm(Ay ~ ., data = train[1:nrow(train) %in% nonPurchaseRandSamples, c(-1, -3, -5, -7, seq(-26, -32))], 
+#subsetting
+set.seed(1001)
+numberOfSamples <- 10000
+numberOfSamples <- length(nonPurchaseRandSamples) #Use this to shuffle the full data
+gbmAllstateA <- gbm(Ay ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-27, -32))], 
                   n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                   shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateA)
 
 #Use best hiperparameters on full data for package "B". Random non-purchase data 
-gbmAllstateB <- gbm(By ~ ., data = train[1:nrow(train) %in% nonPurchaseRandSamples, c(-1, -3, -5, -7, seq(-26, -32))], 
+gbmAllstateB <- gbm(By ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, -26, seq(-28, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateB)
 
 #Use best hiperparameters on full data for package "C". Random non-purchase data 
-gbmAllstateC <- gbm(Cy ~ ., data = train[1:nrow(train) %in% nonPurchaseRandSamples, c(-1, -3, -5, -7, seq(-26, -32))], 
+gbmAllstateC <- gbm(Cy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, -26, -27, seq(-29, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateC)
 
 #Use best hiperparameters on full data for package "D". Random non-purchase data 
-gbmAllstateD <- gbm(Dy ~ ., data = train[1:nrow(train) %in% nonPurchaseRandSamples, c(-1, -3, -5, -7, seq(-26, -32))], 
+gbmAllstateD <- gbm(Dy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -28), seq(-30, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateD)
 
 #Use best hiperparameters on full data for package "E". Random non-purchase data 
-gbmAllstateE <- gbm(Ey ~ ., data = train[1:nrow(train) %in% nonPurchaseRandSamples, c(-1, -3, -5, -7, seq(-26, -32))], 
+gbmAllstateE <- gbm(Ey ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -29), -31, -32)], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateE)
 
 #Use best hiperparameters on full data for package "F". Random non-purchase data 
-gbmAllstateF <- gbm(Fy ~ ., data = train[1:nrow(train) %in% nonPurchaseRandSamples, c(-1, -3, -5, -7, seq(-26, -32))], 
+gbmAllstateF <- gbm(Fy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -30), -32)], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateF)
 
 #Use best hiperparameters on full data for package "G". Random non-purchase data 
-gbmAllstateG <- gbm(Gy ~ ., data = train[1:nrow(train) %in% nonPurchaseRandSamples, c(-1, -3, -5, -7, seq(-26, -32))], 
+gbmAllstateG <- gbm(Gy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -31))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
