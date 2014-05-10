@@ -193,8 +193,34 @@ pairs(G ~ shopping_pt + record_type + day + time + state + location
 
 #end of awfully long EDA
 ########################################
-#Extra feature creation
-#correlations between packages and features
+#Centrod Generation
+#Train
+centroidsTrain <- sapply(unique(train$customer_ID[1:100]), function(ID){
+  oneCentroidKMeans <- kmeans(train[train$customer_ID == ID & train$record_type == 0, seq(18, 25)],
+                              centers = 1, algorithm = 'Hartigan-Wong')
+  return(oneCentroidKMeans$centers)
+})
+
+#Test
+centroidsTest <- sapply(unique(test$customer_ID), anonFun <- function(ID){
+  oneCentroidKMeans <- kmeans(test[test$customer_ID == ID, seq(18, 25)],
+                              centers = 1, algorithm = 'Hartigan-Wong')
+  return(oneCentroidKMeans$centers)
+})
+
+#save this!, the process takes about 1.6 hours each
+save(as.data.frame(t(centroidsTrain)), file = 'centroidsTrain.RData')
+save(as.data.frame(t(centroidsTest)), file = 'centroidsTest.RData')
+
+#Merge centroids with train and test
+
+#create a "y" matrix and merge it with the train matrix
+names(centroidsTrain) <- c('Ac', 'Bc', 'Cc', 'Dc', 'Ec', 'Fc', 'Gc', 'costCentroid')
+names(centroidsTest) <- c('Ac', 'Bc', 'Cc', 'Dc', 'Ec', 'Fc', 'Gc', 'costCentroid')
+
+train <- merge(train, centroidsTrain, all = TRUE)
+test <- merge(test, centroidsTest, all = TRUE)
+rm(centroidsTrain, centroidsTest)
 
 
 #########################################
@@ -205,7 +231,7 @@ set.seed(1003)
 sampleIndices <- sort(sample(1:nrow(train[trainIndices, ]), floor(nrow(train[trainIndices, ]) * 0.6))) # these indices are useful for validation
 
 #Modeling - Training
-amountOfTrees <- 60000
+amountOfTrees <- 2500
 NumberofCVFolds <- 5
 cores <- NumberofCVFolds
 
@@ -226,7 +252,7 @@ optimalShrinkage <- gridCrossValidationGBM[2]
 #Use best hiperparameters on full data for package "A". Random non-purchase data 
 #subsetting
 set.seed(1001)
-numberOfSamples <- 10000
+#numberOfSamples <- 10000
 numberOfSamples <- length(nonPurchaseRandSamples) #Use this to shuffle the full data
 gbmAllstateA <- gbm(Ay ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-27, -32))], 
                   n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
