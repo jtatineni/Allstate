@@ -198,30 +198,30 @@ pairs(G ~ shopping_pt + record_type + day + time + state + location
 centroidsTrain <- sapply(unique(train$customer_ID), function(ID){
   oneCentroidKMeans <- kmeans(train[train$customer_ID == ID & train$record_type == 0, seq(18, 25)],
                               centers = 1, algorithm = 'Hartigan-Wong')
-  return(oneCentroidKMeans$centers)
+  return(c(ID, oneCentroidKMeans$centers))
 })
 
 #Test
 centroidsTest <- sapply(unique(test$customer_ID), function(ID){
   oneCentroidKMeans <- kmeans(test[test$customer_ID == ID, seq(18, 25)],
                               centers = 1, algorithm = 'Hartigan-Wong')
-  return(oneCentroidKMeans$centers)
+  return(c(ID, oneCentroidKMeans$centers))
 })
 
 #save this! as the process takes about 1.6 hours each
-save(as.data.frame(t(centroidsTrain)), file = 'centroidsTrain.RData')
-save(as.data.frame(t(centroidsTest)), file = 'centroidsTest.RData')
+centroidsTrain <- as.data.frame(t(centroidsTrain))
+centroidsTest <- as.data.frame(t(centroidsTest))
+names(centroidsTrain) <- c('customer_ID', 'Ac', 'Bc', 'Cc', 'Dc', 'Ec', 'Fc', 'Gc', 'costCentroid')
+names(centroidsTest) <- c('customer_ID', 'Ac', 'Bc', 'Cc', 'Dc', 'Ec', 'Fc', 'Gc', 'costCentroid')
+save(centroidsTrain, file = 'centroidsTrain.RData')
+save(centroidsTest, file = 'centroidsTest.RData')
 
 #Merge centroids with train and test
-
-#create a "y" matrix and merge it with the train matrix
-names(centroidsTrain) <- c('Ac', 'Bc', 'Cc', 'Dc', 'Ec', 'Fc', 'Gc', 'costCentroid')
-names(centroidsTest) <- c('Ac', 'Bc', 'Cc', 'Dc', 'Ec', 'Fc', 'Gc', 'costCentroid')
-
+#centroidsTrain <- cbind(unique(train$customer_ID), centroidsTrain)
+#centroidsTest <- cbind(unique(test$customer_ID), centroidsTest)
 train <- merge(train, centroidsTrain, all = TRUE)
 test <- merge(test, centroidsTest, all = TRUE)
 rm(centroidsTrain, centroidsTest)
-
 
 #########################################
 #Modelling
@@ -354,9 +354,6 @@ predictionMatrix <- sapply(list([gbmAllstateA, predictionGBMA], [gbmAllstateB, p
                                   return(model[[2]][ , which.min(abs(n.trees - which.min(model[[1]]$train.error)))])
                                
                              })
-
-bestPrediction <- which.min(abs(n.trees - which.min(gbmWalmart$train.error)))
-
 #Save .csv file 
 submissionTemplate$plan <- predictionMatrix
 write.csv(submissionTemplate, file = "predictionI.csv", row.names = FALSE)
