@@ -195,20 +195,20 @@ pairs(G ~ shopping_pt + record_type + day + time + state + location
 ########################################
 #Centrod Generation
 #Train
-centroidsTrain <- sapply(unique(train$customer_ID[1:100]), function(ID){
+centroidsTrain <- sapply(unique(train$customer_ID), function(ID){
   oneCentroidKMeans <- kmeans(train[train$customer_ID == ID & train$record_type == 0, seq(18, 25)],
                               centers = 1, algorithm = 'Hartigan-Wong')
   return(oneCentroidKMeans$centers)
 })
 
 #Test
-centroidsTest <- sapply(unique(test$customer_ID), anonFun <- function(ID){
+centroidsTest <- sapply(unique(test$customer_ID), function(ID){
   oneCentroidKMeans <- kmeans(test[test$customer_ID == ID, seq(18, 25)],
                               centers = 1, algorithm = 'Hartigan-Wong')
   return(oneCentroidKMeans$centers)
 })
 
-#save this!, the process takes about 1.6 hours each
+#save this! as the process takes about 1.6 hours each
 save(as.data.frame(t(centroidsTrain)), file = 'centroidsTrain.RData')
 save(as.data.frame(t(centroidsTest)), file = 'centroidsTest.RData')
 
@@ -301,3 +301,62 @@ gbmAllstateG <- gbm(Gy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRa
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateG)
+
+#Predictions
+#Package "A"
+n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
+predictionGBMA <- predict(gbmAllstateA, newdata = test[ , c(-1, -3, -5, -7, seq(-27, -32))], 
+                         n.trees = n.trees)
+dim(predictionGBMA)
+
+#Package "B"
+n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
+predictionGBMB <- predict(gbmAllstateB, newdata = test[ , c(-1, -3, -5, -7, -26, seq(-28, -32))], 
+                          n.trees = n.trees)
+dim(predictionGBMB)
+
+#Package "C"
+n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
+predictionGBMC <- predict(gbmAllstateC, newdata = test[ ,  c(-1, -3, -5, -7, -26, -27, seq(-29, -32))], 
+                          n.trees = n.trees)
+dim(predictionGBMC)
+
+#Package "D"
+n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
+predictionGBMD <- predict(gbmAllstateD, newdata = test[ , c(-1, -3, -5, -7, seq(-26, -28), seq(-30, -32))]], 
+                          n.trees = n.trees)
+dim(predictionGBMD)
+
+#Package "E"
+n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
+predictionGBME <- predict(gbmAllstateE, newdata = test[ , c(-1, -3, -5, -7, seq(-26, -29), -31, -32)], 
+                          n.trees = n.trees)
+dim(predictionGBME)
+
+#Package "F"
+n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
+predictionGBMF <- predict(gbmAllstateF, newdata = test[ , c(-1, -3, -5, -7, seq(-26, -30), -32)], 
+                          n.trees = n.trees)
+dim(predictionGBMF)
+
+#Package "G"
+n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
+predictionGBMG <- predict(gbmAllstateG, newdata = test[ , c(-1, -3, -5, -7, seq(-26, -31))], 
+                          n.trees = n.trees)
+dim(predictionGBMG)
+
+#Create prediction matrix
+predictionMatrix <- sapply(list([gbmAllstateA, predictionGBMA], [gbmAllstateB, predictionGBMB],
+                                [gbmAllstateC, predictionGBMC], [gbmAllstateD, predictionGBMD],
+                                [gbmAllstateE, predictionGBME], [gbmAllstateF, predictionGBMF],
+                                [gbmAllstateG, predictionGBMG]), function(model){
+                               
+                                  return(model[[2]][ , which.min(abs(n.trees - which.min(model[[1]]$train.error)))])
+                               
+                             })
+
+bestPrediction <- which.min(abs(n.trees - which.min(gbmWalmart$train.error)))
+
+#Save .csv file 
+submissionTemplate$plan <- predictionMatrix
+write.csv(submissionTemplate, file = "predictionI.csv", row.names = FALSE)
