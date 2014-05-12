@@ -1,5 +1,5 @@
 #Allstate Competition
-#ver 0.1
+#ver 0.4
 
 #########################
 #Init
@@ -251,9 +251,9 @@ optimalShrinkage <- gridCrossValidationGBM[2]
 
 #Use best hiperparameters on full data for package "A". Random non-purchase data 
 #subsetting
-set.seed(1001)
 #numberOfSamples <- 10000
-numberOfSamples <- length(nonPurchaseRandSamples) #Use this to shuffle the full data
+numberOfSamples <- length(nonPurchaseRandSamples) 
+set.seed(1001)
 gbmAllstateA <- gbm(Ay ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-27, -32))], 
                   n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                   shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
@@ -261,6 +261,7 @@ gbmAllstateA <- gbm(Ay ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRa
 summary(gbmAllstateA)
 
 #Use best hiperparameters on full data for package "B". Random non-purchase data 
+set.seed(1002)
 gbmAllstateB <- gbm(By ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, -26, seq(-28, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
@@ -268,6 +269,8 @@ gbmAllstateB <- gbm(By ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRa
 summary(gbmAllstateB)
 
 #Use best hiperparameters on full data for package "C". Random non-purchase data 
+amountOfTrees <- 2100
+set.seed(1003)
 gbmAllstateC <- gbm(Cy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, -26, -27, seq(-29, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
@@ -275,6 +278,8 @@ gbmAllstateC <- gbm(Cy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRa
 summary(gbmAllstateC)
 
 #Use best hiperparameters on full data for package "D". Random non-purchase data 
+amountOfTrees <- 2500
+set.seed(1004)
 gbmAllstateD <- gbm(Dy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -28), seq(-30, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
@@ -282,6 +287,7 @@ gbmAllstateD <- gbm(Dy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRa
 summary(gbmAllstateD)
 
 #Use best hiperparameters on full data for package "E". Random non-purchase data 
+set.seed(1005)
 gbmAllstateE <- gbm(Ey ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -29), -31, -32)], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
@@ -289,6 +295,7 @@ gbmAllstateE <- gbm(Ey ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRa
 summary(gbmAllstateE)
 
 #Use best hiperparameters on full data for package "F". Random non-purchase data 
+set.seed(1006)
 gbmAllstateF <- gbm(Fy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -30), -32)], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
@@ -296,6 +303,7 @@ gbmAllstateF <- gbm(Fy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRa
 summary(gbmAllstateF)
 
 #Use best hiperparameters on full data for package "G". Random non-purchase data 
+set.seed(1007)
 gbmAllstateG <- gbm(Gy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -31))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
