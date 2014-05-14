@@ -376,7 +376,10 @@ rm(gbmAllstateG)
 
 #Create prediction matrix
 predictionMatrix <- paste0(predictionGBMA, predictionGBMB, predictionGBMC, predictionGBMD, predictionGBME, predictionGBMF, predictionGBMG)
+indicesPredictionMatrix <- sapply(unique(test$customer_ID), function(ID){
+  return(max(which(test$customer_ID == ID)))
+  })
 
 #Save .csv file 
-submissionTemplate$plan <- predictionMatrix
+submissionTemplate$plan <- predictionMatrix[indicesPredictionMatrix]
 write.csv(submissionTemplate, file = "predictionI.csv", row.names = FALSE)
