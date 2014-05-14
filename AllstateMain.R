@@ -18,6 +18,8 @@ dataDirectory <- '/home/wacax/Documents/Wacax/Kaggle Data Analysis/Allstate/Data
 
 #Load functions
 source(paste0(workingDirectory, 'gridCrossValidationGBM.R'))
+source(paste0(workingDirectory, 'extractBestTree.R'))
+
 
 #############################
 #Load Data
@@ -231,7 +233,6 @@ set.seed(1003)
 sampleIndices <- sort(sample(1:nrow(train[trainIndices, ]), floor(nrow(train[trainIndices, ]) * 0.6))) # these indices are useful for validation
 
 #Modeling - Training
-amountOfTrees <- 2500
 NumberofCVFolds <- 5
 cores <- NumberofCVFolds
 
@@ -253,6 +254,7 @@ optimalShrinkage <- gridCrossValidationGBM[2]
 #subsetting
 #numberOfSamples <- 10000
 numberOfSamples <- length(nonPurchaseRandSamples) 
+amountOfTrees <- 2500
 set.seed(1001)
 gbmAllstateA <- gbm(Ay ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-27, -32))], 
                   n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
@@ -295,6 +297,7 @@ gbmAllstateE <- gbm(Ey ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRa
 summary(gbmAllstateE)
 
 #Use best hiperparameters on full data for package "F". Random non-purchase data 
+amountOfTrees <- 2100
 set.seed(1006)
 gbmAllstateF <- gbm(Fy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -30), -32)], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
@@ -302,7 +305,8 @@ gbmAllstateF <- gbm(Fy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRa
 
 summary(gbmAllstateF)
 
-#Use best hiperparameters on full data for package "G". Random non-purchase data 
+#Use best hiperparameters on full data for package "G". Random non-purchase data
+amountOfTrees <- 2100
 set.seed(1007)
 gbmAllstateG <- gbm(Gy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -31))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
@@ -310,58 +314,69 @@ gbmAllstateG <- gbm(Gy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRa
 
 summary(gbmAllstateG)
 
+##################################################
 #Predictions
+
 #Package "A"
+amountOfTrees <- 2500
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
-predictionGBMA <- predict(gbmAllstateA, newdata = test[ , c(-1, -3, -5, -7, seq(-27, -32))], 
+predictionGBMA <- predict(gbmAllstateA, newdata = test[ , c(-1, -3, -5, -7)], 
                          n.trees = n.trees)
 dim(predictionGBMA)
+predictionGBMA <- extractBestTree(gbmAllstateA, predictionGBMA)
+rm(gbmAllstateA)
 
 #Package "B"
-n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
-predictionGBMB <- predict(gbmAllstateB, newdata = test[ , c(-1, -3, -5, -7, -26, seq(-28, -32))], 
+predictionGBMB <- predict(gbmAllstateB, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMB)
+predictionGBMB <- extractBestTree(gbmAllstateB, predictionGBMB)
+rm(gbmAllstateB)
 
 #Package "C"
+amountOfTrees <- 2100
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
-predictionGBMC <- predict(gbmAllstateC, newdata = test[ ,  c(-1, -3, -5, -7, -26, -27, seq(-29, -32))], 
+predictionGBMC <- predict(gbmAllstateC, newdata = test[ ,  c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMC)
+predictionGBMC <- extractBestTree(gbmAllstateC, predictionGBMC)
+rm(gbmAllstateC)
 
 #Package "D"
+amountOfTrees <- 2500
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
-predictionGBMD <- predict(gbmAllstateD, newdata = test[ , c(-1, -3, -5, -7, seq(-26, -28), seq(-30, -32))]], 
+predictionGBMD <- predict(gbmAllstateD, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMD)
+predictionGBMD <- extractBestTree(gbmAllstateD, predictionGBMD)
+rm(gbmAllstateD)
 
 #Package "E"
-n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
-predictionGBME <- predict(gbmAllstateE, newdata = test[ , c(-1, -3, -5, -7, seq(-26, -29), -31, -32)], 
+predictionGBME <- predict(gbmAllstateE, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBME)
+predictionGBME <- extractBestTree(gbmAllstateE, predictionGBME)
+rm(gbmAllstateE)
 
 #Package "F"
+amountOfTrees <- 2100
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
-predictionGBMF <- predict(gbmAllstateF, newdata = test[ , c(-1, -3, -5, -7, seq(-26, -30), -32)], 
+predictionGBMF <- predict(gbmAllstateF, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMF)
+predictionGBMF <- extractBestTree(gbmAllstateF, predictionGBMF)
+rm(gbmAllstateF)
 
 #Package "G"
-n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
-predictionGBMG <- predict(gbmAllstateG, newdata = test[ , c(-1, -3, -5, -7, seq(-26, -31))], 
+predictionGBMG <- predict(gbmAllstateG, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMG)
+predictionGBMG <- extractBestTree(gbmAllstateG, predictionGBMG)
+rm(gbmAllstateG)
 
 #Create prediction matrix
-predictionMatrix <- sapply(list([gbmAllstateA, predictionGBMA], [gbmAllstateB, predictionGBMB],
-                                [gbmAllstateC, predictionGBMC], [gbmAllstateD, predictionGBMD],
-                                [gbmAllstateE, predictionGBME], [gbmAllstateF, predictionGBMF],
-                                [gbmAllstateG, predictionGBMG]), function(model){
-                               
-                                  return(model[[2]][ , which.min(abs(n.trees - which.min(model[[1]]$train.error)))])
-                               
-                             })
+predictionMatrix <- paste0(predictionGBMA, predictionGBMB, predictionGBMC, predictionGBMD, predictionGBME, predictionGBMF, predictionGBMG)
+
 #Save .csv file 
 submissionTemplate$plan <- predictionMatrix
 write.csv(submissionTemplate, file = "predictionI.csv", row.names = FALSE)
