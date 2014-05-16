@@ -1,5 +1,5 @@
 #Allstate Competition
-#ver 0.4
+#ver 1.2
 
 #########################
 #Init

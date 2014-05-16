@@ -257,15 +257,15 @@ gridCrossValidationGBM <- gridCrossValidationGBM(Weekly_Sales ~ ., cbind(extract
 #optimalTreeDepth <- gridCrossValidationGBM[1]
 #optimalShrinkage <- gridCrossValidationGBM[2]
 optimalTreeDepth <- 3
-optimalShrinkage <- 0.01
+optimalShrinkage <- 0.03
 
 #Use best hiperparameters on full data for package "A". Last non-purchasing point data
 #subsetting
 #numberOfSamples <- 10000
 numberOfSamples <- length(lastOfferIndices) 
-amountOfTrees <- 2500
+amountOfTrees <- 500
 set.seed(1001)
-gbmAllstateA <- gbm(Ay ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, seq(-27, -32))], 
+gbmAllstateA <- gbm(Ay ~ ., data = train[, c(-1, -3, -5, -7, seq(-27, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
@@ -273,25 +273,25 @@ summary(gbmAllstateA)
 
 #Use best hiperparameters on full data for package "B". Last non-purchasing point data 
 set.seed(1002)
-gbmAllstateB <- gbm(By ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, -26, seq(-28, -32))], 
+gbmAllstateB <- gbm(By ~ ., data = train[, c(-1, -3, -5, -7, -26, seq(-28, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateB)
 
 #Use best hiperparameters on full data for package "C". Last non-purchasing point data 
-amountOfTrees <- 2100
+amountOfTrees <- 400
 set.seed(1003)
-gbmAllstateC <- gbm(Cy ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, -26, -27, seq(-29, -32))], 
+gbmAllstateC <- gbm(Cy ~ ., data = train[, c(-1, -3, -5, -7, -26, -27, seq(-29, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateC)
 
 #Use best hiperparameters on full data for package "D". Last non-purchasing point data
-amountOfTrees <- 2500
+amountOfTrees <- 500
 set.seed(1004)
-gbmAllstateD <- gbm(Dy ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -28), seq(-30, -32))], 
+gbmAllstateD <- gbm(Dy ~ ., data = train[, c(-1, -3, -5, -7, seq(-26, -28), seq(-30, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
@@ -299,25 +299,25 @@ summary(gbmAllstateD)
 
 #Use best hiperparameters on full data for package "E". Last non-purchasing point data 
 set.seed(1005)
-gbmAllstateE <- gbm(Ey ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -29), -31, -32)], 
+gbmAllstateE <- gbm(Ey ~ ., data = train[, c(-1, -3, -5, -7, seq(-26, -29), -31, -32)], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateE)
 
 #Use best hiperparameters on full data for package "F". Last non-purchasing point data 
-amountOfTrees <- 2100
+amountOfTrees <- 400
 set.seed(1006)
-gbmAllstateF <- gbm(Fy ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -30), -32)], 
+gbmAllstateF <- gbm(Fy ~ ., data = train[, c(-1, -3, -5, -7, seq(-26, -30), -32)], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateF)
 
 #Use best hiperparameters on full data for package "G". Last non-purchasing point data
-amountOfTrees <- 2100
+amountOfTrees <- 400
 set.seed(1007)
-gbmAllstateG <- gbm(Gy ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -31))], 
+gbmAllstateG <- gbm(Gy ~ ., data = train[, c(-1, -3, -5, -7, seq(-26, -31))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
@@ -327,7 +327,7 @@ summary(gbmAllstateG)
 #Predictions
 
 #Package "A"
-amountOfTrees <- 2500
+amountOfTrees <- 500
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMA <- predict(gbmAllstateA, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
@@ -343,7 +343,7 @@ predictionGBMB <- extractBestTree(gbmAllstateB, predictionGBMB)
 rm(gbmAllstateB)
 
 #Package "C"
-amountOfTrees <- 2100
+amountOfTrees <- 400
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMC <- predict(gbmAllstateC, newdata = test[ ,  c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
@@ -352,7 +352,7 @@ predictionGBMC <- extractBestTree(gbmAllstateC, predictionGBMC)
 rm(gbmAllstateC)
 
 #Package "D"
-amountOfTrees <- 2500
+amountOfTrees <- 500
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMD <- predict(gbmAllstateD, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
@@ -368,7 +368,7 @@ predictionGBME <- extractBestTree(gbmAllstateE, predictionGBME)
 rm(gbmAllstateE)
 
 #Package "F"
-amountOfTrees <- 2100
+amountOfTrees <- 400
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMF <- predict(gbmAllstateF, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)

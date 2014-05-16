@@ -1,5 +1,5 @@
 #Allstate Competition
-#ver 0.4
+#ver 2.0
 
 #########################
 #Init
@@ -257,12 +257,11 @@ gridCrossValidationGBM <- gridCrossValidationGBM(Weekly_Sales ~ ., cbind(extract
 #optimalTreeDepth <- gridCrossValidationGBM[1]
 #optimalShrinkage <- gridCrossValidationGBM[2]
 optimalTreeDepth <- 3
-optimalShrinkage <- 0.003
+optimalShrinkage <- 0.01
 
-#Use best hiperparameters on full data for package "A". Random non-purchase data 
+#Use best hiperparameters on full data for package "A". Last non-purchasing point data
 #subsetting
 #numberOfSamples <- 10000
-#numberOfSamples <- length(nonPurchaseRandSamples) 
 numberOfSamples <- length(lastOfferIndices) 
 amountOfTrees <- 2500
 set.seed(1001)
@@ -272,7 +271,7 @@ gbmAllstateA <- gbm(Ay ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndi
 
 summary(gbmAllstateA)
 
-#Use best hiperparameters on full data for package "B". Random non-purchase data 
+#Use best hiperparameters on full data for package "B". Last non-purchasing point data 
 set.seed(1002)
 gbmAllstateB <- gbm(By ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, -26, seq(-28, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
@@ -280,7 +279,7 @@ gbmAllstateB <- gbm(By ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndi
 
 summary(gbmAllstateB)
 
-#Use best hiperparameters on full data for package "C". Random non-purchase data 
+#Use best hiperparameters on full data for package "C". Last non-purchasing point data 
 amountOfTrees <- 2100
 set.seed(1003)
 gbmAllstateC <- gbm(Cy ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, -26, -27, seq(-29, -32))], 
@@ -289,7 +288,7 @@ gbmAllstateC <- gbm(Cy ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndi
 
 summary(gbmAllstateC)
 
-#Use best hiperparameters on full data for package "D". Random non-purchase data 
+#Use best hiperparameters on full data for package "D". Last non-purchasing point data
 amountOfTrees <- 2500
 set.seed(1004)
 gbmAllstateD <- gbm(Dy ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -28), seq(-30, -32))], 
@@ -298,7 +297,7 @@ gbmAllstateD <- gbm(Dy ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndi
 
 summary(gbmAllstateD)
 
-#Use best hiperparameters on full data for package "E". Random non-purchase data 
+#Use best hiperparameters on full data for package "E". Last non-purchasing point data 
 set.seed(1005)
 gbmAllstateE <- gbm(Ey ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -29), -31, -32)], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
@@ -306,7 +305,7 @@ gbmAllstateE <- gbm(Ey ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndi
 
 summary(gbmAllstateE)
 
-#Use best hiperparameters on full data for package "F". Random non-purchase data 
+#Use best hiperparameters on full data for package "F". Last non-purchasing point data 
 amountOfTrees <- 2100
 set.seed(1006)
 gbmAllstateF <- gbm(Fy ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -30), -32)], 
@@ -315,7 +314,7 @@ gbmAllstateF <- gbm(Fy ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndi
 
 summary(gbmAllstateF)
 
-#Use best hiperparameters on full data for package "G". Random non-purchase data
+#Use best hiperparameters on full data for package "G". Last non-purchasing point data
 amountOfTrees <- 2100
 set.seed(1007)
 gbmAllstateG <- gbm(Gy ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -31))], 
@@ -396,4 +395,4 @@ submissionTemplate$plan <- centroidMatrix[indicesPredictionMatrix]
 
 #Save .csv file 
 submissionTemplate$plan <- predictionMatrix[indicesPredictionMatrix]
-write.csv(submissionTemplate, file = "predictionIII.csv", row.names = FALSE, quote = FALSE)
+write.csv(submissionTemplate, file = "predictionIV.csv", row.names = FALSE, quote = FALSE)
