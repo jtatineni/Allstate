@@ -275,7 +275,7 @@ summary(gbmAllstateA)
 set.seed(1002)
 gbmAllstateB <- gbm(By ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, -26, seq(-28, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
-                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
+                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'bernoulli') #input interaction.depth
 
 summary(gbmAllstateB)
 
@@ -301,7 +301,7 @@ summary(gbmAllstateD)
 set.seed(1005)
 gbmAllstateE <- gbm(Ey ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -29), -31, -32)], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
-                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
+                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'bernoulli') #input interaction.depth
 
 summary(gbmAllstateE)
 

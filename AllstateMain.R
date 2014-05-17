@@ -1,5 +1,5 @@
 #Allstate Competition
-#ver 1.2
+#ver 1.3
 
 #########################
 #Init
@@ -273,10 +273,11 @@ gbmAllstateA <- gbm(Ay ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRa
 summary(gbmAllstateA)
 
 #Use best hiperparameters on full data for package "B". Random non-purchase data 
+amountOfTrees <- 2700
 set.seed(1002)
 gbmAllstateB <- gbm(By ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, -26, seq(-28, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
-                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
+                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'bernoulli') #input interaction.depth
 
 summary(gbmAllstateB)
 
@@ -299,10 +300,11 @@ gbmAllstateD <- gbm(Dy ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRa
 summary(gbmAllstateD)
 
 #Use best hiperparameters on full data for package "E". Random non-purchase data 
+amountOfTrees <- 2700
 set.seed(1005)
 gbmAllstateE <- gbm(Ey ~ ., data = train[1:nrow(train) %in% sample(nonPurchaseRandSamples, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -29), -31, -32)], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
-                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
+                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'bernoulli') #input interaction.depth
 
 summary(gbmAllstateE)
 
@@ -337,6 +339,7 @@ predictionGBMA <- extractBestTree(gbmAllstateA, predictionGBMA, startsAt = 0)
 rm(gbmAllstateA)
 
 #Package "B"
+amountOfTrees <- 2700
 predictionGBMB <- predict(gbmAllstateB, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMB)
@@ -362,6 +365,7 @@ predictionGBMD <- extractBestTree(gbmAllstateD, predictionGBMD, startsAt = 1)
 rm(gbmAllstateD)
 
 #Package "E"
+amountOfTrees <- 2700
 predictionGBME <- predict(gbmAllstateE, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBME)
@@ -396,4 +400,4 @@ submissionTemplate$plan <- centroidMatrix[indicesPredictionMatrix]
 
 #Save .csv file 
 submissionTemplate$plan <- predictionMatrix[indicesPredictionMatrix]
-write.csv(submissionTemplate, file = "predictionIII.csv", row.names = FALSE, quote = FALSE)
+write.csv(submissionTemplate, file = "predictionV.csv", row.names = FALSE, quote = FALSE)
