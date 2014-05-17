@@ -261,11 +261,9 @@ optimalShrinkage <- 0.03
 
 #Use best hiperparameters on full data for package "A". Last non-purchasing point data
 #subsetting
-#numberOfSamples <- 10000
-numberOfSamples <- length(lastOfferIndices) 
-amountOfTrees <- 500
+amountOfTrees <- 250
 set.seed(1001)
-gbmAllstateA <- gbm(Ay ~ ., data = train[, c(-1, -3, -5, -7, seq(-27, -32))], 
+gbmAllstateA <- gbm(Ay ~ ., data = train[train$record_type != 1, c(-1, -3, -5, -7, seq(-27, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
@@ -273,25 +271,25 @@ summary(gbmAllstateA)
 
 #Use best hiperparameters on full data for package "B". Last non-purchasing point data 
 set.seed(1002)
-gbmAllstateB <- gbm(By ~ ., data = train[, c(-1, -3, -5, -7, -26, seq(-28, -32))], 
+gbmAllstateB <- gbm(By ~ ., data = train[train$record_type != 1, c(-1, -3, -5, -7, -26, seq(-28, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateB)
 
 #Use best hiperparameters on full data for package "C". Last non-purchasing point data 
-amountOfTrees <- 400
+amountOfTrees <- 200
 set.seed(1003)
-gbmAllstateC <- gbm(Cy ~ ., data = train[, c(-1, -3, -5, -7, -26, -27, seq(-29, -32))], 
+gbmAllstateC <- gbm(Cy ~ ., data = train[train$record_type != 1, c(-1, -3, -5, -7, -26, -27, seq(-29, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateC)
 
 #Use best hiperparameters on full data for package "D". Last non-purchasing point data
-amountOfTrees <- 500
+amountOfTrees <- 250
 set.seed(1004)
-gbmAllstateD <- gbm(Dy ~ ., data = train[, c(-1, -3, -5, -7, seq(-26, -28), seq(-30, -32))], 
+gbmAllstateD <- gbm(Dy ~ ., data = train[train$record_type != 1, c(-1, -3, -5, -7, seq(-26, -28), seq(-30, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
@@ -299,25 +297,25 @@ summary(gbmAllstateD)
 
 #Use best hiperparameters on full data for package "E". Last non-purchasing point data 
 set.seed(1005)
-gbmAllstateE <- gbm(Ey ~ ., data = train[, c(-1, -3, -5, -7, seq(-26, -29), -31, -32)], 
+gbmAllstateE <- gbm(Ey ~ ., data = train[train$record_type != 1, c(-1, -3, -5, -7, seq(-26, -29), -31, -32)], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateE)
 
 #Use best hiperparameters on full data for package "F". Last non-purchasing point data 
-amountOfTrees <- 400
+amountOfTrees <- 200
 set.seed(1006)
-gbmAllstateF <- gbm(Fy ~ ., data = train[, c(-1, -3, -5, -7, seq(-26, -30), -32)], 
+gbmAllstateF <- gbm(Fy ~ ., data = train[train$record_type != 1, c(-1, -3, -5, -7, seq(-26, -30), -32)], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
 summary(gbmAllstateF)
 
 #Use best hiperparameters on full data for package "G". Last non-purchasing point data
-amountOfTrees <- 400
+amountOfTrees <- 200
 set.seed(1007)
-gbmAllstateG <- gbm(Gy ~ ., data = train[, c(-1, -3, -5, -7, seq(-26, -31))], 
+gbmAllstateG <- gbm(Gy ~ ., data = train[train$record_type != 1, c(-1, -3, -5, -7, seq(-26, -31))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
                     shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'multinomial') #input interaction.depth
 
