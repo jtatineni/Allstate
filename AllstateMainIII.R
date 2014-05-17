@@ -330,14 +330,14 @@ n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMA <- predict(gbmAllstateA, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMA)
-predictionGBMA <- extractBestTree(gbmAllstateA, predictionGBMA)
+predictionGBMA <- extractBestTree(gbmAllstateA, predictionGBMA, startsAt = 0)
 rm(gbmAllstateA)
 
 #Package "B"
 predictionGBMB <- predict(gbmAllstateB, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMB)
-predictionGBMB <- extractBestTree(gbmAllstateB, predictionGBMB)
+predictionGBMB <- extractBestTree(gbmAllstateB, predictionGBMB, startsAt = 0)
 rm(gbmAllstateB)
 
 #Package "C"
@@ -346,7 +346,7 @@ n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMC <- predict(gbmAllstateC, newdata = test[ ,  c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMC)
-predictionGBMC <- extractBestTree(gbmAllstateC, predictionGBMC)
+predictionGBMC <- extractBestTree(gbmAllstateC, predictionGBMC, startsAt = 1)
 rm(gbmAllstateC)
 
 #Package "D"
@@ -355,14 +355,14 @@ n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMD <- predict(gbmAllstateD, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMD)
-predictionGBMD <- extractBestTree(gbmAllstateD, predictionGBMD)
+predictionGBMD <- extractBestTree(gbmAllstateD, predictionGBMD, startsAt = 1)
 rm(gbmAllstateD)
 
 #Package "E"
 predictionGBME <- predict(gbmAllstateE, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBME)
-predictionGBME <- extractBestTree(gbmAllstateE, predictionGBME)
+predictionGBME <- extractBestTree(gbmAllstateE, predictionGBME, startsAt = 0)
 rm(gbmAllstateE)
 
 #Package "F"
@@ -371,14 +371,14 @@ n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMF <- predict(gbmAllstateF, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMF)
-predictionGBMF <- extractBestTree(gbmAllstateF, predictionGBMF)
+predictionGBMF <- extractBestTree(gbmAllstateF, predictionGBMF, startsAt = 0)
 rm(gbmAllstateF)
 
 #Package "G"
 predictionGBMG <- predict(gbmAllstateG, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMG)
-predictionGBMG <- extractBestTree(gbmAllstateG, predictionGBMG)
+predictionGBMG <- extractBestTree(gbmAllstateG, predictionGBMG, startsAt = 1)
 rm(gbmAllstateG)
 
 #Create prediction matrix
