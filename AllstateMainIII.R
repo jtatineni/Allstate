@@ -393,4 +393,4 @@ submissionTemplate$plan <- centroidMatrix[indicesPredictionMatrix]
 
 #Save .csv file 
 submissionTemplate$plan <- predictionMatrix[indicesPredictionMatrix]
-write.csv(submissionTemplate, file = "predictionIV.csv", row.names = FALSE, quote = FALSE)
+write.csv(submissionTemplate, file = "predictionXII.csv", row.names = FALSE, quote = FALSE)

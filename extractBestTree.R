@@ -1,6 +1,6 @@
 #it extracts the best tree number 
 extractBestTree <- function(model, prediction, startsAt = 0){
-  if(model$distribution == 'bernoulli'){
+  if(model$distribution == 'bernoulli' | model$distribution == 'adaboost' | model$distribution == 'huberized'){
     predictionVector <- prediction[ , which.min(abs(n.trees - which.min(model$train.error)))]
     predictionVector <- round(predictionVector)
     predictionVector[predictionVector < 0] <- 0

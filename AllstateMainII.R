@@ -1,5 +1,5 @@
 #Allstate Competition
-#ver 2.0
+#ver 2.1
 
 #########################
 #Init
@@ -256,8 +256,8 @@ gridCrossValidationGBM <- gridCrossValidationGBM(Weekly_Sales ~ ., cbind(extract
 ##
 #optimalTreeDepth <- gridCrossValidationGBM[1]
 #optimalShrinkage <- gridCrossValidationGBM[2]
-optimalTreeDepth <- 3
-optimalShrinkage <- 0.01
+optimalTreeDepth <- 7
+optimalShrinkage <- 0.003
 
 #Use best hiperparameters on full data for package "A". Last non-purchasing point data
 #subsetting
@@ -272,10 +272,11 @@ gbmAllstateA <- gbm(Ay ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndi
 summary(gbmAllstateA)
 
 #Use best hiperparameters on full data for package "B". Last non-purchasing point data 
+amountOfTrees <- 3000
 set.seed(1002)
 gbmAllstateB <- gbm(By ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, -26, seq(-28, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
-                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'bernoulli') #input interaction.depth
+                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'adaboost') #input interaction.depth
 
 summary(gbmAllstateB)
 
@@ -298,10 +299,11 @@ gbmAllstateD <- gbm(Dy ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndi
 summary(gbmAllstateD)
 
 #Use best hiperparameters on full data for package "E". Last non-purchasing point data 
+amountOfTrees <- 3000
 set.seed(1005)
 gbmAllstateE <- gbm(Ey ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -29), -31, -32)], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
-                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'bernoulli') #input interaction.depth
+                    shrinkage = optimalShrinkage, verbose = TRUE, distribution = 'adaboost') #input interaction.depth
 
 summary(gbmAllstateE)
 
@@ -336,6 +338,8 @@ predictionGBMA <- extractBestTree(gbmAllstateA, predictionGBMA, startsAt = 0)
 rm(gbmAllstateA)
 
 #Package "B"
+amountOfTrees <- 20000
+n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMB <- predict(gbmAllstateB, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMB)
@@ -348,19 +352,21 @@ n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMC <- predict(gbmAllstateC, newdata = test[ ,  c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMC)
-predictionGBMC <- extractBestTree(gbmAllstateC, predictionGBMC , startsAt = 1)
+predictionGBMC <- extractBestTree(gbmAllstateC, predictionGBMC, startsAt = 1)
 rm(gbmAllstateC)
 
 #Package "D"
-amountOfTrees <- 2500
+amountOfTrees <- 2100
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMD <- predict(gbmAllstateD, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBMD)
-predictionGBMD <- extractBestTree(gbmAllstateD, predictionGBMD, , startsAt = 1)
+predictionGBMD <- extractBestTree(gbmAllstateD, predictionGBMD, startsAt = 1)
 rm(gbmAllstateD)
 
 #Package "E"
+amountOfTrees <- 20000
+n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBME <- predict(gbmAllstateE, newdata = test[ , c(-1, -3, -5, -7)], 
                           n.trees = n.trees)
 dim(predictionGBME)
@@ -395,4 +401,4 @@ submissionTemplate$plan <- centroidMatrix[indicesPredictionMatrix]
 
 #Save .csv file 
 submissionTemplate$plan <- predictionMatrix[indicesPredictionMatrix]
-write.csv(submissionTemplate, file = "predictionVII.csv", row.names = FALSE, quote = FALSE)
+write.csv(submissionTemplate, file = "predictionXI.csv", row.names = FALSE, quote = FALSE)
