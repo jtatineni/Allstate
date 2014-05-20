@@ -1,5 +1,5 @@
 #Allstate Competition
-#ver 2.1
+#ver 2.2
 
 #########################
 #Init
@@ -263,7 +263,7 @@ optimalShrinkage <- 0.003
 #subsetting
 #numberOfSamples <- 10000
 numberOfSamples <- length(lastOfferIndices) 
-amountOfTrees <- 2500
+amountOfTrees <- 2700
 set.seed(1001)
 gbmAllstateA <- gbm(Ay ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, seq(-27, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
@@ -290,7 +290,7 @@ gbmAllstateC <- gbm(Cy ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndi
 summary(gbmAllstateC)
 
 #Use best hiperparameters on full data for package "D". Last non-purchasing point data
-amountOfTrees <- 2500
+amountOfTrees <- 2700
 set.seed(1004)
 gbmAllstateD <- gbm(Dy ~ ., data = train[1:nrow(train) %in% sample(lastOfferIndices, numberOfSamples), c(-1, -3, -5, -7, seq(-26, -28), seq(-30, -32))], 
                     n.trees = amountOfTrees, n.cores = cores, interaction.depth = optimalTreeDepth,
@@ -329,64 +329,73 @@ summary(gbmAllstateG)
 #Predictions
 
 #Package "A"
-amountOfTrees <- 2500
+amountOfTrees <- 2700
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMA <- predict(gbmAllstateA, newdata = test[ , c(-1, -3, -5, -7)], 
-                          n.trees = n.trees)
+                          n.trees = which.min(abs(gbmAllstateA$n.trees - which.min(gbmAllstateA$train.error))), 
+                          single.tree = TRUE)
 dim(predictionGBMA)
-predictionGBMA <- extractBestTree(gbmAllstateA, predictionGBMA, startsAt = 0)
+predictionGBMA <- extractBestTree(gbmAllstateA, predictionGBMA[ , , 1], startsAt = 0)
 rm(gbmAllstateA)
 
 #Package "B"
-amountOfTrees <- 20000
+amountOfTrees <- 3000
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMB <- predict(gbmAllstateB, newdata = test[ , c(-1, -3, -5, -7)], 
-                          n.trees = n.trees)
+                          n.trees = which.min(abs(gbmAllstateB$n.trees - which.min(gbmAllstateB$train.error))), 
+                          single.tree = TRUE)
 dim(predictionGBMB)
-predictionGBMB <- extractBestTree(gbmAllstateB, predictionGBMB, startsAt = 0)
+predictionGBMB <- extractBestTree(gbmAllstateB, predictionGBMB[,,1], startsAt = 0)
 rm(gbmAllstateB)
 
 #Package "C"
 amountOfTrees <- 2100
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMC <- predict(gbmAllstateC, newdata = test[ ,  c(-1, -3, -5, -7)], 
-                          n.trees = n.trees)
+                          n.trees = which.min(abs(gbmAllstateC$n.trees - which.min(gbmAllstateC$train.error))), 
+                          single.tree = TRUE)
 dim(predictionGBMC)
-predictionGBMC <- extractBestTree(gbmAllstateC, predictionGBMC, startsAt = 1)
+predictionGBMC <- extractBestTree(gbmAllstateC, predictionGBMC[, , 1], startsAt = 1)
 rm(gbmAllstateC)
 
 #Package "D"
-amountOfTrees <- 2100
+amountOfTrees <- 2700
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMD <- predict(gbmAllstateD, newdata = test[ , c(-1, -3, -5, -7)], 
-                          n.trees = n.trees)
+                          n.trees = which.min(abs(gbmAllstateD$n.trees - which.min(gbmAllstateD$train.error))), 
+                          single.tree = TRUE)
 dim(predictionGBMD)
-predictionGBMD <- extractBestTree(gbmAllstateD, predictionGBMD, startsAt = 1)
+predictionGBMD <- extractBestTree(gbmAllstateD, predictionGBMD[,,1], startsAt = 1)
 rm(gbmAllstateD)
 
 #Package "E"
-amountOfTrees <- 20000
+amountOfTrees <- 3000
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBME <- predict(gbmAllstateE, newdata = test[ , c(-1, -3, -5, -7)], 
-                          n.trees = n.trees)
+                          n.trees = which.min(abs(gbmAllstateE$n.trees - which.min(gbmAllstateE$train.error))), 
+                          single.tree = TRUE)
 dim(predictionGBME)
-predictionGBME <- extractBestTree(gbmAllstateE, predictionGBME, startsAt = 0)
+predictionGBME <- extractBestTree(gbmAllstateE, predictionGBME[,,1], startsAt = 0)
 rm(gbmAllstateE)
 
 #Package "F"
 amountOfTrees <- 2100
 n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMF <- predict(gbmAllstateF, newdata = test[ , c(-1, -3, -5, -7)], 
-                          n.trees = n.trees)
+                          n.trees = which.min(abs(gbmAllstateF$n.trees - which.min(gbmAllstateF$train.error))), 
+                          single.tree = TRUE)
 dim(predictionGBMF)
-predictionGBMF <- extractBestTree(gbmAllstateF, predictionGBMF, startsAt = 0)
+predictionGBMF <- extractBestTree(gbmAllstateF, predictionGBMF[,,1], startsAt = 0)
 rm(gbmAllstateF)
 
 #Package "G"
+amountOfTrees <- 2100
+n.trees <- seq(from = 100, to = amountOfTrees, by = 100)
 predictionGBMG <- predict(gbmAllstateG, newdata = test[ , c(-1, -3, -5, -7)], 
-                          n.trees = n.trees)
+                          n.trees = which.min(abs(gbmAllstateG$n.trees - which.min(gbmAllstateG$train.error))), 
+                          single.tree = TRUE)
 dim(predictionGBMG)
-predictionGBMG <- extractBestTree(gbmAllstateG, predictionGBMG, startsAt = 1)
+predictionGBMG <- extractBestTree(gbmAllstateG, predictionGBMG[,,1], startsAt = 1)
 rm(gbmAllstateG)
 
 #Create prediction matrix
@@ -401,4 +410,4 @@ submissionTemplate$plan <- centroidMatrix[indicesPredictionMatrix]
 
 #Save .csv file 
 submissionTemplate$plan <- predictionMatrix[indicesPredictionMatrix]
-write.csv(submissionTemplate, file = "predictionXI.csv", row.names = FALSE, quote = FALSE)
+write.csv(submissionTemplate, file = "predictionXIV.csv", row.names = FALSE, quote = FALSE)
